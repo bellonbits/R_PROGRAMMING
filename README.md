@@ -1759,3 +1759,339 @@ epidemic_data <- covid_data %>%
     cumulative_cases = cumsum(daily_cases),
     
     # Epidemic week (CDC standard: Sunday start)
+    epi_week = epiweek(symptom_onset),
+    epi_year = epiyear(symptom_onset)
+  )
+
+# Create epidemic curve
+ggplot(epidemic_data, aes(x = symptom_onset)) +
+  geom_col(aes(y = daily_cases), alpha = 0.7, fill = "steelblue") +
+  geom_line(aes(y = cases_7day_avg), color = "red", size = 1) +
+  labs(
+    title = "COVID-19 Epidemic Curve",
+    subtitle = "Daily cases with 7-day moving average",
+    x = "Date of Symptom Onset",
+    y = "Number of Cases"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### Working with Time Zones and Timestamps
+```r
+# Handle timestamps with time zones
+covid_data <- covid_data %>%
+  mutate(
+    # Convert timestamp strings to datetime
+    admission_datetime = ymd_hms(admission_timestamp, tz = "America/New_York"),
+    
+    # Extract just the date from datetime
+    admission_date_only = as.Date(admission_datetime),
+    
+    # Extract time components
+    admission_hour = hour(admission_datetime),
+    admission_time_of_day = case_when(
+      admission_hour >= 6 & admission_hour < 12 ~ "Morning",
+      admission_hour >= 12 & admission_hour < 18 ~ "Afternoon", 
+      admission_hour >= 18 & admission_hour < 24 ~ "Evening",
+      TRUE ~ "Night"
+    )
+  )
+```
+
+---
+
+## 2.9 Advanced Data Summaries and Cross-tabulations
+
+### Comprehensive Group Summaries
+```r
+# Multi-level grouping with comprehensive statistics
+detailed_summary <- covid_data %>%
+  group_by(age_group, gender, vaccination_status) %>%
+  summarise(
+    # Counts and proportions
+    n = n(),
+    percent_of_total = n / nrow(covid_data) * 100,
+    
+    # Age statistics
+    mean_age = mean(age, na.rm = TRUE),
+    median_age = median(age, na.rm = TRUE),
+    age_sd = sd(age, na.rm = TRUE),
+    age_iqr = IQR(age, na.rm = TRUE),
+    
+    # Clinical outcomes
+    hospitalization_rate = mean(hospitalized == "Yes", na.rm = TRUE) * 100,
+    mortality_rate = mean(outcome == "Death", na.rm = TRUE) * 100,
+    icu_rate = mean(icu_admission == "Yes", na.rm = TRUE) * 100,
+    
+    # Time-based measures
+    mean_symptom_duration = mean(symptom_duration_days, na.rm = TRUE),
+    median_time_to_test = median(days_onset_to_test, na.rm = TRUE),
+    
+    # Severity distribution
+    mild_cases = sum(symptom_severity == "Mild", na.rm = TRUE),
+    moderate_cases = sum(symptom_severity == "Moderate", na.rm = TRUE),
+    severe_cases = sum(symptom_severity == "Severe", na.rm = TRUE),
+    
+    # Missing data patterns
+    missing_outcome = sum(is.na(outcome)),
+    complete_data_rate = mean(complete.cases(pick(everything()))) * 100,
+    
+    .groups = "drop"
+  ) %>%
+  arrange(desc(n))  # Sort by sample size
+```
+
+### Advanced Cross-tabulations
+```r
+# Multi-way cross-tabulation with percentages
+cross_tab_detailed <- covid_data %>%
+  count(age_group, gender, outcome) %>%
+  group_by(age_group, gender) %>%
+  mutate(
+    total_in_group = sum(n),
+    percent_within_group = n / total_in_group * 100
+  ) %>%
+  ungroup() %>%
+  group_by(outcome) %>%
+  mutate(
+    total_outcome = sum(n),
+    percent_of_outcome = n / total_outcome * 100
+  ) %>%
+  ungroup()
+
+# Create publication-ready cross-tabulation table
+cross_tab_wide <- cross_tab_detailed %>%
+  select(age_group, gender, outcome, n, percent_within_group) %>%
+  unite("count_percent", n, percent_within_group, sep = " (", remove = FALSE) %>%
+  mutate(count_percent = paste0(count_percent, "%)")) %>%
+  select(-n, -percent_within_group) %>%
+  pivot_wider(
+    names_from = outcome,
+    values_from = count_percent,
+    values_fill = "0 (0%)"
+  )
+```
+
+### Statistical Testing in Summaries
+```r
+# Include statistical tests in group comparisons
+statistical_comparison <- covid_data %>%
+  group_by(treatment_group) %>%
+  summarise(
+    n = n(),
+    mean_age = mean(age, na.rm = TRUE),
+    sd_age = sd(age, na.rm = TRUE),
+    median_recovery_days = median(recovery_days, na.rm = TRUE),
+    iqr_recovery = IQR(recovery_days, na.rm = TRUE),
+    hospitalization_rate = mean(hospitalized == "Yes", na.rm = TRUE) * 100,
+    .groups = "drop"
+  )
+
+# Add statistical tests
+age_test <- aov(age ~ treatment_group, data = covid_data)
+recovery_test <- kruskal.test(recovery_days ~ treatment_group, data = covid_data)
+hosp_test <- chisq.test(table(covid_data$treatment_group, covid_data$hospitalized))
+
+# Note: In practice, you'd add these test results to your summary table
+```
+
+### Creating Analysis-Ready Datasets
+```r
+# Prepare final analysis dataset with all transformations
+analysis_dataset <- covid_data %>%
+  # Filter to analysis population
+  filter(
+    age >= 18,                          # Adults only
+    !is.na(outcome),                    # Must have outcome data
+    !is.na(symptom_onset),             # Must have onset date
+    symptom_onset >= as.Date("2020-01-01"), # Exclude invalid dates
+    symptom_onset <= Sys.Date()
+  ) %>%
+  
+  # Create final analysis variables
+  mutate(
+    # Primary outcome (binary)
+    severe_outcome = outcome %in% c("ICU", "Death", "Hospitalized"),
+    
+    # Primary exposure (categorical)
+    vaccination_status = factor(
+      vaccination_status,
+      levels = c("Unvaccinated", "Partially Vaccinated", "Fully Vaccinated"),
+      labels = c("Unvaccinated", "Partial", "Full")
+    ),
+    
+    # Important covariates
+    age_decades = floor(age / 10) * 10,
+    bmi_category = factor(
+      case_when(
+        bmi < 25 ~ "Normal",
+        bmi < 30 ~ "Overweight", 
+        bmi >= 30 ~ "Obese",
+        TRUE ~ "Missing"
+      ),
+      levels = c("Normal", "Overweight", "Obese", "Missing")
+    ),
+    
+    # Time variables
+    days_since_pandemic_start = as.numeric(symptom_onset - as.Date("2020-03-01")),
+    pandemic_wave = case_when(
+      symptom_onset < as.Date("2020-06-01") ~ "Wave 1",
+      symptom_onset < as.Date("2020-12-01") ~ "Wave 2", 
+      symptom_onset < as.Date("2021-06-01") ~ "Wave 3",
+      TRUE ~ "Wave 4"
+    )
+  ) %>%
+  
+  # Select variables for analysis
+  select(
+    # IDs and administrative
+    participant_id, study_site,
+    
+    # Demographics
+    age, age_decades, gender, race_ethnicity, education, bmi_category,
+    
+    # Exposures
+    vaccination_status, previous_infection, comorbidities,
+    
+    # Outcomes
+    severe_outcome, outcome, symptom_severity, hospitalized, icu_admission,
+    
+    # Time variables
+    symptom_onset, days_since_pandemic_start, pandemic_wave,
+    
+    # Clinical variables
+    symptom_duration_days, recovery_days
+  ) %>%
+  
+  # Final quality checks
+  filter(
+    complete.cases(age, gender, vaccination_status, severe_outcome)  # Complete case for key variables
+  )
+
+# Document the final dataset
+analysis_summary <- analysis_dataset %>%
+  summarise(
+    total_participants = n(),
+    date_range = paste(min(symptom_onset), "to", max(symptom_onset)),
+    age_range = paste(min(age), "to", max(age), "years"),
+    percent_severe_outcomes = mean(severe_outcome) * 100,
+    percent_vaccinated = mean(vaccination_status != "Unvaccinated") * 100
+  )
+
+print("Final Analysis Dataset Summary:")
+print(analysis_summary)
+
+# Check balance across key variables
+balance_check <- analysis_dataset %>%
+  group_by(vaccination_status) %>%
+  summarise(
+    n = n(),
+    mean_age = mean(age),
+    percent_female = mean(gender == "Female") * 100,
+    percent_comorbidities = mean(comorbidities == "Yes") * 100,
+    .groups = "drop"
+  )
+
+print("Balance Check Across Exposure Groups:")
+print(balance_check)
+```
+
+---
+
+## Lesson Summary and Best Practices
+
+### Key Concepts Mastered
+
+**Lesson 1 - Foundation:**
+- R and RStudio environment navigation
+- Package management and loading
+- Basic data types and structures
+- Data import from multiple sources
+- Initial data exploration and visualization
+- Descriptive statistics and frequency tables
+
+**Lesson 2 - Data Mastery:**
+- Tidy data principles and implementation
+- Comprehensive missing value strategies
+- Advanced filtering and subsetting
+- Variable creation and transformation
+- Factor management for categorical data
+- Data reshaping and merging
+- Date/time handling for epidemiological data
+- Advanced summaries and cross-tabulations
+
+### Essential Best Practices
+
+#### 1. Always Start with Data Exploration
+```r
+# Standard data exploration workflow
+new_data %>%
+  glimpse() %>%              # Quick overview
+  summary() %>%              # Statistical summary
+  sapply(function(x) sum(is.na(x))) %>%  # Missing values
+  head(10)                   # First few rows
+```
+
+#### 2. Document Your Decisions
+```r
+# Always comment your reasoning
+covid_data <- covid_data %>%
+  filter(
+    age >= 18,              # Analysis limited to adults per protocol
+    !is.na(outcome),        # Primary outcome required for analysis
+    symptom_onset >= as.Date("2020-03-01")  # Pandemic start date
+  ) %>%
+  mutate(
+    # Create binary outcome for logistic regression
+    severe_outcome = outcome %in% c("ICU", "Death", "Hospitalized")
+  )
+```
+
+#### 3. Validate Your Transformations
+```r
+# Always check your work
+before_transform <- covid_data %>% count(original_variable)
+after_transform <- covid_data %>% count(new_variable)
+
+# Verify transformations make sense
+covid_data %>%
+  count(age_group, age_continuous) %>%
+  arrange(age_continuous)  # Check age grouping is correct
+```
+
+#### 4. Save Intermediate Steps
+```r
+# Save clean datasets at key points
+write_csv(covid_raw, "data/covid_raw.csv")
+write_csv(covid_clean, "data/covid_cleaned.csv") 
+write_csv(analysis_dataset, "data/covid_analysis_ready.csv")
+```
+
+#### 5. Create Reproducible Workflows
+```r
+# Structure your analysis scripts
+# 1. Load packages
+# 2. Set parameters/constants
+# 3. Read data
+# 4. Clean data
+# 5. Transform variables
+# 6. Save analysis-ready data
+# 7. Perform analysis
+
+# Use consistent naming conventions
+participant_id    # not ID, id, or participantID
+symptom_onset    # not onset, symptom_date, or SymptomOnset
+severe_outcome   # not severe, severity, or SevereOutcome
+```
+
+### Common Pitfalls to Avoid
+
+1. **Not checking data types after import** - Always verify with `str()` or `glimpse()`
+2. **Ignoring missing value patterns** - Understand why data is missing before deciding how to handle it
+3. **Creating factors without specifying levels** - R's default alphabetical ordering may not be meaningful
+4. **Not validating date conversions** - Always check date ranges and formats
+5. **Losing data in joins** - Always check row counts before and after merging
+6. **Not documenting variable transformations** - Future you (and collaborators) will thank you
+
+This comprehensive foundation in R data management will serve you throughout your epidemiological career. The skills learned here apply to everything from simple descriptive analyses to complex multi-level modeling and everything in between.
