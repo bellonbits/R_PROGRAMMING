@@ -1,0 +1,29 @@
+Case_ID,Date_Onset,County,Sex,Age,Occupation,Case_Status,Clinical_Presentation,Lab_Diagnosis,Travel_History,Travel_Destination
+MPX_001,6/5/2025,Kakamega,Male,37,Boda Boda Rider,Suspected,"Fever, Rash, Lymphadenopathy, Genital Lesions",PCR Positive,Yes,Uganda
+MPX_002,6/2/2025,Kakamega,Male,20,Boda Boda Rider,Suspected,"Fever, Rash, Lymphadenopathy, Genital Lesions",Pending,Yes,Tanzania
+MPX_003,6/10/2025,Busia,Male,31,Commercial Sex Worker,Suspected,"Fever, Rash, Lymphadenopathy",PCR Positive,No,None
+MPX_004,6/9/2025,Kakamega,Female,19,Other,Confirmed,"Fever, Rash, Lymphadenopathy",PCR Positive,Yes,Uganda
+MPX_005,6/9/2025,Busia,Male,37,Other,Confirmed,"Fever, Rash",Pending,Yes,South Sudan
+MPX_006,6/6/2025,Busia,Female,42,Other,Confirmed,"Fever, Rash, Lymphadenopathy, Genital Lesions",PCR Positive,Yes,Tanzania
+MPX_007,6/5/2025,Bungoma,Female,34,Other,Suspected,"Fever, Rash, Lymphadenopathy, Genital Lesions",PCR Positive,No,None
+MPX_008,6/4/2025,Bungoma,Female,21,Student,Suspected,"Fever, Rash, Lymphadenopathy",Pending,No,None
+MPX_009,6/15/2025,Busia,Male,30,Student,Confirmed,"Fever, Rash, Lymphadenopathy",PCR Positive,Yes,DRC
+MPX_010,6/3/2025,Busia,Male,37,Other,Suspected,"Fever, Rash",PCR Negative,No,None
+MPX_011,6/2/2025,Busia,Male,30,Student,Suspected,"Fever, Rash, Genital Lesions",Pending,Yes,Tanzania
+MPX_012,6/4/2025,Bungoma,Male,48,Commercial Sex Worker,Confirmed,"Fever, Rash, Lymphadenopathy, Genital Lesions",Pending,No,None
+MPX_013,6/8/2025,Bungoma,Male,42,Truck Driver,Suspected,"Fever, Rash, Genital Lesions",PCR Positive,No,None
+MPX_014,6/9/2025,Busia,Male,46,Boda Boda Rider,Suspected,"Fever, Rash, Genital Lesions",PCR Positive,No,None
+MPX_015,6/18/2025,Bungoma,Male,26,Truck Driver,Confirmed,"Fever, Rash, Lymphadenopathy, Genital Lesions",PCR Positive,Yes,Uganda
+MPX_016,6/2/2025,Bungoma,Female,33,Boda Boda Rider,Suspected,"Fever, Rash, Lymphadenopathy",Pending,Yes,South Sudan
+MPX_017,6/8/2025,Busia,Male,25,Other,Confirmed,"Fever, Rash",Pending,No,None
+MPX_018,6/15/2025,Busia,Male,32,Student,Confirmed,"Rash, Genital Lesions",Pending,No,None
+MPX_019,6/9/2025,Busia,Female,33,Other,Confirmed,"Fever, Rash, Lymphadenopathy, Genital Lesions",PCR Positive,Yes,South Sudan
+MPX_020,6/16/2025,Bungoma,Male,44,Other,Suspected,"Fever, Lymphadenopathy",PCR Positive,Yes,Uganda
+MPX_021,6/10/2025,Bungoma,Male,42,Student,Suspected,"Fever, Rash",Pending,No,None
+MPX_022,6/2/2025,Busia,Male,40,Boda Boda Rider,Confirmed,"Fever, Rash, Lymphadenopathy, Genital Lesions",Pending,Yes,South Sudan
+MPX_023,6/7/2025,Kakamega,Male,31,Student,Suspected,"Rash, Lymphadenopathy",Pending,No,None
+MPX_024,6/15/2025,Busia,Male,25,Other,Confirmed,"Fever, Rash, Lymphadenopathy",Pending,Yes,Tanzania
+MPX_025,6/12/2025,Busia,Male,48,Truck Driver,Suspected,"Fever, Lymphadenopathy, Genital Lesions",Pending,No,None
+MPX_026,6/10/2025,Busia,Male,22,Commercial Sex Worker,Confirmed,"Fever, Rash, Lymphadenopathy, Genital Lesions",PCR Positive,No,None
+MPX_027,6/6/2025,Busia,Male,20,Other,Suspected,"Fever, Rash, Lymphadenopathy",Pending,Yes,Tanzania
+MPX_028,6/8/2025,Kakamega,Female,24,Truck Driver,Suspected,"Fever, Rash, Lymphadenopathy",PCR Positive,Yes,Uganda
