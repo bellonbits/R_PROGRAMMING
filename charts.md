@@ -1,16 +1,3 @@
-Perfect — turning this into **modules** will make your teaching structured, progressive, and easy to deliver (especially for new learners).
-
-Below is a complete **R Visualization Curriculum** built around your content.
-Each module includes:
-
-* 🎯 *Learning objectives*
-* 🧠 *Key concepts*
-* 🧩 *Practical examples (Base R + ggplot2)*
-* 💬 *Discussion & mnemonics*
-* 🧑‍💻 *Student exercises*
-
----
-
 # 📘 COURSE MODULES: **Data Visualization in R (Base R vs ggplot2)**
 
 ---
