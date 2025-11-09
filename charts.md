@@ -343,17 +343,3 @@ ggplot(demo, aes(x=Sex, y=Age, fill=Education)) +
 > 🎭 **Theme for tone, Facet for focus, Legend for logic**
 > ✍️ **Line–Label–Margin = add meaning**
 
----
-
-## 🏁 Outcome
-
-After these modules, students can:
-✅ Create all common chart types.
-✅ Understand and explain each parameter.
-✅ Choose between Base R and ggplot2 confidently.
-✅ Customize charts for professional reporting.
-
----
-
-Would you like me to generate a **PDF “Instructor Pack”** version — with structured sections, color-coded tables, and space for student notes (like a workbook)?
-It’s perfect for classroom teaching or self-paced study.
